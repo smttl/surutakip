@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr"><head><title>Vet Dosyası</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<body class="bg-light p-4"><div class="container">
+    <a href="/dashboard" class="btn btn-secondary mb-3">&larr; Dön</a>
+    <h3>{{ hayvan.kupe_no }} - Sağlık ve Üreme Dosyası</h3>
+    
+    <div class="row">
+        <div class="col-md-4">
+            
+            {% if hayvan.cinsiyet == 'Dişi' and current_user.role in ['admin', 'vet'] %}
+            <div class="card mb-3 border-warning">
+                <div class="card-header bg-warning text-dark">🤰 Gebelik Durumu</div>
+                <div class="card-body">
+                    {% if hayvan.gebe_mi %}
+                        <div class="alert alert-success">
+                            <strong>Şu an GEBE</strong><br>
+                            Tohumlama: {{ hayvan.tohumlama_tarihi }}
+                        </div>
+                        <form action="/gebelik_guncelle/{{ hayvan.id }}" method="POST">
+                            <input type="hidden" name="gebelik_durumu" value="Bos">
+                            <button class="btn btn-outline-danger w-100">Gebeliği Sonlandır / Doğum Yaptı</button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-secondary">Şu an BOŞ (Gebe Değil)</div>
+                        <form action="/gebelik_guncelle/{{ hayvan.id }}" method="POST">
+                            <input type="hidden" name="gebelik_durumu" value="Gebe">
+                            <label>Tohumlama Tarihi:</label>
+                            <input type="date" name="tohumlama_tarihi" class="form-control mb-2" required>
+                            <button class="btn btn-success w-100">Gebelik Başlat / Tohumlama</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if current_user.role in ['admin', 'vet'] %}
+            <div class="card p-3 mb-3">
+                <h5>Yeni Muayene/İşlem</h5>
+                <form method="POST" enctype="multipart/form-data">
+                    <input type="date" name="tarih" class="form-control mb-2" required>
+                    <select name="islem_tipi" class="form-select mb-2"><option>Muayene</option><option>Tedavi</option><option>Aşı</option><option>Cerrahi</option></select>
+                    <textarea name="aciklama" class="form-control mb-2" rows="3" placeholder="Notlar..."></textarea>
+                    <input type="file" name="dosya" class="form-control mb-3">
+                    <button class="btn btn-danger w-100">Kaydet</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card"><div class="card-header bg-dark text-white">Geçmiş Kayıtlar</div>
+            <div class="card-body p-0">
+                {% for k in hayvan.saglik_kayitlari|reverse %}
+                <div class="p-3 border-bottom">
+                    <div class="d-flex justify-content-between">
+                        <strong class="text-primary">{{ k.islem_tipi }}</strong>
+                        <small class="text-muted">{{ k.tarih }} - {{ k.vet_adi }}</small>
+                    </div>
+                    <p class="mb-1">{{ k.aciklama }}</p>
+                    {% if k.dosya %} <a href="/static/uploads/{{k.dosya}}" target="_blank" class="btn btn-sm btn-outline-secondary">📎 Dosya Gör</a> {% endif %}
+                </div>
+                {% endfor %}
+            </div></div>
+        </div>
+    </div>
+</div></body></html>
