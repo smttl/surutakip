@@ -1,99 +1,143 @@
 <!DOCTYPE html>
 <html lang="tr">
-<head><title>Panel</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sürü Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>.mobile-lbl { font-weight: bold; color: #666; }</style>
 </head>
 <body class="bg-light">
-<nav class="navbar navbar-dark bg-dark px-4">
-    <a class="navbar-brand" href="#">Sürü Yönetim ({{ user.role.upper() }})</a>
-    <div class="d-flex gap-2">
-        <a href="/asi_takvimi" class="btn btn-sm btn-warning">📅 Aşı Takvimi</a>
-        {% if user.role in ['admin', 'sahip'] %}<a href="/islem_gecmisi" class="btn btn-sm btn-primary">📊 Raporlar</a>{% endif %}
-        {% if user.role == 'admin' %}<a href="/admin/users" class="btn btn-sm btn-info">👥 Kullanıcılar</a>{% endif %}
-        <a href="/hastalik_bildir" class="btn btn-sm btn-danger">🚨 Bildir</a>
-        <a href="/logout" class="btn btn-sm btn-light">Çıkış</a>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+    <a class="navbar-brand" href="#">Sürü ({{ user.role.upper() }})</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navb"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse justify-content-end" id="navb">
+        <ul class="navbar-nav gap-2 mt-2 mt-lg-0">
+            <li class="nav-item"><a href="/asi_takvimi" class="btn btn-sm btn-warning w-100">📅 Aşı</a></li>
+            {% if user.role in ['admin', 'sahip'] %}<li class="nav-item"><a href="/islem_gecmisi" class="btn btn-sm btn-primary w-100">📊 Rapor</a></li>{% endif %}
+            {% if user.role == 'admin' %}<li class="nav-item"><a href="/admin/users" class="btn btn-sm btn-info w-100">👥 Kullanıcı</a></li>{% endif %}
+            <li class="nav-item"><a href="/hastalik_bildir" class="btn btn-sm btn-danger w-100">🚨 Bildir</a></li>
+            <li class="nav-item"><a href="/logout" class="btn btn-sm btn-light w-100">Çıkış</a></li>
+        </ul>
     </div>
 </nav>
 
 <div class="container mt-4">
     {% if bildirimler %}
-    <div class="alert alert-danger">
-        <h5>🚨 Acil Bildirimler</h5>
-        <ul class="mb-0">{% for b in bildirimler %}<li>{{ b.hayvan.kupe_no }} - {{ b.aciklama }}</li>{% endfor %}</ul>
-    </div>
+    <div class="alert alert-danger"><strong>🚨 Bildirim:</strong><ul class="mb-0">{% for b in bildirimler %}<li>{{ b.hayvan.kupe_no }} - {{ b.aciklama }}</li>{% endfor %}</ul></div>
     {% endif %}
 
     {% if user.role in ['admin', 'sahip', 'vet'] %}
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card p-3 h-100 border-primary">
-                <h5>📋 Görev Ata</h5>
-                <form action="/gorev_ata" method="POST">
-                    <select name="calisan_id" class="form-select mb-2">{% for c in calisanlar %}<option value="{{ c.id }}">{{ c.username }}</option>{% endfor %}</select>
-                    <input type="text" name="aciklama" class="form-control mb-2" placeholder="Görev?" required>
-                    <button class="btn btn-primary w-100">Ata</button>
-                </form>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card p-3 h-100 border-secondary">
-                <h5>🏷️ Padok Ekle</h5>
-                <form action="/grup_ekle" method="POST">
-                    <input type="text" name="grup_ad" class="form-control mb-2" placeholder="Ad" required>
-                    <input type="text" name="aciklama" class="form-control mb-2" placeholder="Not">
-                    <button class="btn btn-secondary w-100">+</button>
-                </form>
-                <small class="text-muted d-block mt-2" style="max-height:80px;overflow-y:auto">{% for g in gruplar %}{{ g.ad }}, {% endfor %}</small>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card p-3 h-100 shadow-sm">
-                <h6 class="text-success">🐄 Yeni Hayvan Kaydı</h6>
-                <form method="POST" class="row g-2">
-                    <div class="col-4"><input type="text" name="kupe_no" class="form-control" placeholder="Küpe No" required></div>
-                    <div class="col-4"><input type="text" name="padok_no" class="form-control" placeholder="Padok No" required></div>
-                    <div class="col-4"><select name="grup_id" class="form-select"><option value="">Grup...</option>{% for g in gruplar %}<option value="{{ g.id }}">{{ g.ad }}</option>{% endfor %}</select></div>
-                    <div class="col-3"><select name="tur" class="form-select"><option>Koyun</option><option>Sığır</option></select></div>
-                    <div class="col-3"><input type="text" name="irk" class="form-control" placeholder="Irk"></div>
-                    <div class="col-3"><input type="number" name="yas_ay" class="form-control" placeholder="Yaş (Ay)" required></div>
-                    <div class="col-3"><select name="cinsiyet" class="form-select" id="cinsiyetSecimi" onchange="dogumGoster()"><option value="Dişi">Dişi</option><option value="Erkek">Erkek</option></select></div>
-                    <div class="col-6" id="dogumInputDiv"><input type="number" name="dogum_sayisi" class="form-control" placeholder="Doğum Sayısı" value="0"></div>
-                    <div class="col-3 pt-2"><input type="checkbox" name="sagilabilir"> Sağmal</div>
-                    <div class="col-3"><button class="btn btn-success w-100">KAYDET</button></div>
-                </form>
-            </div>
+    <div class="accordion mb-4 shadow-sm" id="tools">
+        <div class="accordion-item">
+            <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cTools">⚙️ Hayvan / Padok / Görev Ekle</button></h2>
+            <div id="cTools" class="accordion-collapse collapse" data-bs-parent="#tools"><div class="accordion-body bg-white">
+                <div class="row g-3">
+                    <div class="col-md-4"><div class="card p-2 border-primary h-100">
+                        <h6 class="text-primary">Görev Ata</h6>
+                        <form action="/gorev_ata" method="POST">
+                            <select name="calisan_id" class="form-select mb-2">{% for c in calisanlar %}<option value="{{ c.id }}">{{ c.username }}</option>{% endfor %}</select>
+                            <input type="text" name="aciklama" class="form-control mb-2" placeholder="İş?" required>
+                            <button class="btn btn-primary btn-sm w-100">Ata</button>
+                        </form>
+                    </div></div>
+                    <div class="col-md-4"><div class="card p-2 border-secondary h-100">
+                        <h6 class="text-secondary">Padok Ekle</h6>
+                        <form action="/grup_ekle" method="POST">
+                            <input type="text" name="grup_ad" class="form-control mb-2" placeholder="Ad" required>
+                            <input type="text" name="aciklama" class="form-control mb-2" placeholder="Not">
+                            <button class="btn btn-secondary btn-sm w-100">+</button>
+                        </form>
+                    </div></div>
+                    <div class="col-md-4"><div class="card p-2 border-success h-100">
+                        <h6 class="text-success">Hayvan Ekle</h6>
+                        <form method="POST" class="row g-2">
+                            <div class="col-6"><input type="text" name="kupe_no" class="form-control form-control-sm" placeholder="Küpe" required></div>
+                            <div class="col-6"><input type="text" name="padok_no" class="form-control form-control-sm" placeholder="No"></div>
+                            <div class="col-6"><select name="grup_id" class="form-select form-select-sm"><option value="">Grup...</option>{% for g in gruplar %}<option value="{{ g.id }}">{{ g.ad }}</option>{% endfor %}</select></div>
+                            <div class="col-6"><select name="tur" class="form-select form-select-sm"><option>Sığır</option><option>Koyun</option></select></div>
+                            <div class="col-6"><input type="text" name="irk" class="form-control form-control-sm" placeholder="Irk"></div>
+                            <div class="col-6"><input type="number" name="yas_ay" class="form-control form-control-sm" placeholder="Ay" required></div>
+                            <div class="col-6"><select name="cinsiyet" class="form-select form-select-sm"><option>Dişi</option><option>Erkek</option></select></div>
+                            <div class="col-6"><input type="number" name="dogum_sayisi" class="form-control form-control-sm" placeholder="Doğum #" value="0"></div>
+                            <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" name="sagilabilir" id="sag"><label class="form-check-label" for="sag">Sağmal</label></div></div>
+                            <div class="col-12"><button class="btn btn-success btn-sm w-100">KAYDET</button></div>
+                        </form>
+                    </div></div>
+                </div>
+            </div></div>
         </div>
     </div>
     {% endif %}
 
-    <table class="table table-white shadow-sm align-middle">
-        <thead class="table-dark"><tr><th>Küpe / Padok</th><th>Grup</th><th>Tür / Irk</th><th>Yaş</th><th>Cinsiyet / Gebelik</th><th>Durum</th><th>İşlem</th></tr></thead>
-        <tbody>
-            {% for h in suru %}
-            <tr>
-                <td><strong>{{ h.kupe_no }}</strong><br><small class="text-muted">No: {{ h.padok_no }}</small></td>
-                <td>{% if h.grup %}<span class="badge bg-secondary">{{ h.grup.ad }}</span>{% else %}-{% endif %}</td>
-                <td>{{ h.tur }} / {{ h.irk }}</td>
-                <td>{{ h.yas_ay }} Ay</td>
-                <td>
-                    {{ h.cinsiyet }}
-                    {% if h.gebe_mi %}
-                        <br><span class="badge bg-warning text-dark">🤰 GEBE</span>
-                        {% if h.tohumlama_tarihi %}<small class="d-block text-muted" style="font-size:0.7em">{{ h.tohumlama_tarihi }}</small>{% endif %}
-                    {% endif %}
-                </td>
-                <td><span class="badge {% if 'Hasta' in h.saglik_durumu %}bg-danger{% else %}bg-success{% endif %}">{{ h.saglik_durumu }}</span></td>
-                <td>{% if user.role in ['admin', 'vet', 'sahip'] %}<a href="/vet/detay/{{ h.id }}" class="btn btn-warning btn-sm">Dosya</a>{% endif %}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="d-none d-md-block card shadow-sm">
+        <div class="card-header bg-dark text-white">🐄 Hayvan Listesi</div>
+        <table class="table table-hover align-middle mb-0">
+            <thead><tr><th>Küpe/Padok</th><th>Grup</th><th>Tür/Irk</th><th>Yaş/Durum</th><th>İşlem</th></tr></thead>
+            <tbody>
+                {% for h in suru %}
+                <tr>
+                    <td><strong>{{ h.kupe_no }}</strong><br><small class="text-muted">{{ h.padok_no }}</small></td>
+                    <td>{% if h.grup %}<span class="badge bg-secondary">{{ h.grup.ad }}</span>{% else %}-{% endif %}</td>
+                    <td>{{ h.tur }} / {{ h.irk }}</td>
+                    <td>{{ h.yas_ay }} Ay {% if h.gebe_mi %}<span class="badge bg-warning text-dark">GEBE</span>{% endif %} <br> <span class="badge {% if 'Hasta' in h.saglik_durumu %}bg-danger{% else %}bg-success{% endif %}">{{ h.saglik_durumu }}</span></td>
+                    <td>
+                        {% if user.role in ['admin', 'vet', 'sahip'] %}
+                        <div class="btn-group">
+                            <a href="/vet/detay/{{ h.id }}" class="btn btn-outline-primary btn-sm">Dosya</a>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#m{{ h.id }}">Sil/Kesim</button>
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                <div class="modal fade" id="m{{ h.id }}" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title">{{ h.kupe_no }} İşlem</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-body"><form action="/hayvan_cikar/{{ h.id }}" method="POST"><div class="d-grid gap-2">
+                        <button name="sebep" value="Kesim" class="btn btn-warning">🥩 Kesim</button>
+                        <button name="sebep" value="Satış" class="btn btn-info text-white">💰 Satış</button>
+                        <button name="sebep" value="Ölüm" class="btn btn-dark">⚰️ Ölüm</button>
+                        <button name="sebep" value="Sil" class="btn btn-danger">❌ SİL (Hatalı Giriş)</button>
+                    </div></form></div>
+                </div></div></div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-md-none">
+        {% for h in suru %}
+        <div class="card mb-3 shadow-sm border-start border-4 {% if 'Hasta' in h.saglik_durumu %}border-danger{% else %}border-success{% endif %}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h5 class="mb-0">{{ h.kupe_no }}</h5><span class="badge bg-light text-dark border">{{ h.padok_no }}</span>
+                </div>
+                <hr class="my-2">
+                <div class="row g-1 mb-2">
+                    <div class="col-6"><span class="mobile-lbl">Grup:</span> {% if h.grup %}{{ h.grup.ad }}{% else %}-{% endif %}</div>
+                    <div class="col-6"><span class="mobile-lbl">Tür:</span> {{ h.tur }}</div>
+                    <div class="col-6"><span class="mobile-lbl">Yaş:</span> {{ h.yas_ay }} Ay</div>
+                    <div class="col-6">{% if h.gebe_mi %}<span class="badge bg-warning text-dark">GEBE</span>{% endif %}</div>
+                </div>
+                {% if user.role in ['admin', 'vet', 'sahip'] %}
+                <div class="d-flex gap-2">
+                    <a href="/vet/detay/{{ h.id }}" class="btn btn-primary btn-sm flex-grow-1">📂 Dosya</a>
+                    <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#mm{{ h.id }}">🗑️</button>
+                </div>
+                <div class="modal fade" id="mm{{ h.id }}" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+                    <div class="modal-header"><h5 class="modal-title">{{ h.kupe_no }}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-body"><form action="/hayvan_cikar/{{ h.id }}" method="POST"><div class="d-grid gap-2">
+                        <button name="sebep" value="Kesim" class="btn btn-warning">🥩 Kesim</button>
+                        <button name="sebep" value="Satış" class="btn btn-info text-white">💰 Satış</button>
+                        <button name="sebep" value="Ölüm" class="btn btn-dark">⚰️ Ölüm</button>
+                        <button name="sebep" value="Sil" class="btn btn-danger">❌ SİL</button>
+                    </div></form></div>
+                </div></div></div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
-<script>
-function dogumGoster() {
-    var cinsiyet = document.getElementById("cinsiyetSecimi").value;
-    var div = document.getElementById("dogumInputDiv");
-    if (cinsiyet === "Erkek") div.style.display = "none"; else div.style.display = "block";
-}
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body></html>

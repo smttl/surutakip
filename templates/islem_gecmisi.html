@@ -1,70 +1,19 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-    <title>Çiftlik Günlüğü</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .timeline-row:hover { background-color: #f8f9fa; }
-    </style>
-</head>
-<body class="bg-light p-4">
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <a href="/dashboard" class="btn btn-secondary">&larr; Panele Dön</a>
-        </div>
-        <h3 class="text-primary">📜 Çiftlik Hareket Günlüğü</h3>
-        <div>
-            <span class="badge bg-danger">Sağlık</span>
-            <span class="badge bg-warning text-dark">Süt</span>
-            <span class="badge bg-success">Görev</span>
-        </div>
-    </div>
-
-    <div class="card shadow">
-        <div class="card-body p-0">
-            <table class="table table-bordered mb-0 align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th style="width: 15%;">Tarih</th>
-                        <th style="width: 10%;">Tür</th>
-                        <th>Yapılan İşlem Detayı</th>
-                        <th style="width: 15%;">Yapan Personel</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for islem in islemler %}
-                    <tr class="timeline-row">
-                        <td class="text-muted fw-bold">{{ islem.tarih }}</td>
-                        <td class="text-center">
-                            <span class="badge bg-{{ islem.renk }} w-100 py-2">
-                                {{ islem.ikon }} {{ islem.kategori }}
-                            </span>
-                        </td>
-                        <td>
-                            {{ islem.detay }}
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2" style="width: 30px; height: 30px; font-size: 0.8em;">
-                                    {{ islem.yapan[0].upper() }}
-                                </div>
-                                {{ islem.yapan }}
-                            </div>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="4" class="text-center p-5 text-muted">
-                            <h4>Henüz hiç kayıt yok.</h4>
-                            <p>Sistemde işlem yapıldıkça burada listelenecektir.</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-</body>
-</html>
+<html lang="tr"><head><title>Rapor</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<body class="bg-light p-3"><div class="container">
+    <a href="/dashboard" class="btn btn-secondary mb-3">&larr; Dön</a>
+    <h3 class="mb-3">📜 Hareket Günlüğü</h3>
+    <div class="card"><div class="table-responsive"><table class="table table-bordered mb-0 align-middle">
+        <thead class="table-dark"><tr><th>Tarih</th><th>Tür</th><th>Detay</th><th>Yapan</th></tr></thead>
+        <tbody>
+            {% for i in islemler %}
+            <tr>
+                <td class="text-nowrap small">{{ i.t }}</td>
+                <td><span class="badge bg-{{ i.c }}">{{ i.i }} {{ i.kat }}</span></td>
+                <td>{{ i.d }}</td>
+                <td>{{ i.y }}</td>
+            </tr>
+            {% else %}<tr><td colspan="4" class="text-center p-3">Kayıt yok.</td></tr>{% endfor %}
+        </tbody>
+    </table></div></div>
+</div></body></html>

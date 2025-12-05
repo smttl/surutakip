@@ -1,70 +1,19 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-    <title>Çalışan Paneli</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light p-4">
-<div class="container">
-    <div class="d-flex justify-content-between mb-4 align-items-center">
-        <h3>👷 Merhaba, {{ current_user.username }}</h3>
-        <a href="/logout" class="btn btn-outline-dark">Çıkış Yap</a>
+<html lang="tr"><head><title>Çalışan</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<body class="bg-light p-3"><div class="container">
+    <div class="d-flex justify-content-between mb-4"><h3>👷 {{ current_user.username }}</h3><a href="/logout" class="btn btn-outline-dark">Çıkış</a></div>
+    <div class="row g-2 mb-4">
+        <div class="col-6"><a href="/asi_takvimi" class="btn btn-info w-100 text-white p-3">💉 Aşı</a></div>
+        <div class="col-6"><a href="/hastalik_bildir" class="btn btn-danger w-100 p-3">🚨 Bildir</a></div>
     </div>
-
-    <div class="row mb-4">
-        <div class="col-md-6 mb-2">
-            <a href="/asi_takvimi" class="btn btn-info w-100 text-white p-3 shadow-sm">
-                <h4>💉 Aşı Takvimi</h4>
-                <small>Bugün yapılacak aşıları gör ve onayla</small>
-            </a>
-        </div>
-        <div class="col-md-6 mb-2">
-            <a href="/hastalik_bildir" class="btn btn-danger w-100 p-3 shadow-sm">
-                <h4>🚨 Acil Durum / Hastalık Bildir</h4>
-                <small>Fotoğraf veya video çekip gönder</small>
-            </a>
-        </div>
+    <div class="row g-3">
+        <div class="col-md-6"><div class="card h-100"><div class="card-header bg-primary text-white">Görevler</div><ul class="list-group list-group-flush">
+            {% for g in gorevler %}<li class="list-group-item d-flex justify-content-between">{{ g.aciklama }}<form method="POST"><input type="hidden" name="gorev_id" value="{{ g.id }}"><button class="btn btn-success btn-sm">OK</button></form></li>
+            {% else %}<li class="list-group-item text-muted">Görev yok.</li>{% endfor %}
+        </ul></div></div>
+        <div class="col-md-6"><div class="card h-100 border-warning"><div class="card-header bg-warning">Süt Girişi</div><div class="card-body">
+            <form method="POST"><select name="hayvan_id" class="form-select mb-2">{% for h in sagmal_hayvanlar %}<option value="{{ h.id }}">{{ h.kupe_no }}</option>{% endfor %}</select>
+            <input type="number" step="0.1" name="sut_miktar" class="form-control mb-2" placeholder="Litre"><button class="btn btn-warning w-100">Kaydet</button></form>
+        </div></div></div>
     </div>
-
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card h-100 shadow-sm">
-                <div class="card-header bg-primary text-white">📌 Günlük Görevlerin</div>
-                <ul class="list-group list-group-flush">
-                    {% for g in gorevler %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>{{ g.aciklama }}</span>
-                        <form method="POST">
-                            <input type="hidden" name="gorev_id" value="{{ g.id }}">
-                            <button class="btn btn-success btn-sm">Yapıldı</button>
-                        </form>
-                    </li>
-                    {% else %}
-                    <li class="list-group-item text-muted">Bekleyen görev yok.</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card h-100 border-warning shadow-sm">
-                <div class="card-header bg-warning">🥛 Süt Sağım Girişi</div>
-                <div class="card-body">
-                    <form method="POST">
-                        <label>Hayvan Seç</label>
-                        <select name="hayvan_id" class="form-select mb-3">
-                            {% for h in sagmal_hayvanlar %}
-                            <option value="{{ h.id }}">{{ h.kupe_no }} ({{ h.padok_no }})</option>
-                            {% endfor %}
-                        </select>
-                        <label>Miktar (Litre)</label>
-                        <input type="number" step="0.1" name="sut_miktar" class="form-control mb-3" placeholder="Örn: 22.5">
-                        <button class="btn btn-warning w-100">Kaydet</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-</body>
-</html>
+</div></body></html>
