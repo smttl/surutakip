@@ -47,8 +47,8 @@ Projeyi yerel bilgisayarınızda çalıştırmak için aşağıdaki adımları i
 
 ### 1. Projeyi Kopyalayın
 ```bash
-git clone [https://github.com/KULLANICI_ADINIZ/suru-takip-sistemi.git](https://github.com/KULLANICI_ADINIZ/suru-takip-sistemi.git)
-cd suru-takip-sistemi
+git clone 
+cd surutakip
 
 2. Sanal Ortam Oluşturun (Önerilen)
 Bash
@@ -64,7 +64,7 @@ source venv/bin/activate
 Bash
 
 pip install -r requirements.txt
-(Not: requirements.txt dosyanız yoksa pip install Flask Flask-SQLAlchemy Flask-Login komutunu çalıştırın.)
+(Not: requirements.txt dosyası yoksa pip install Flask Flask-SQLAlchemy Flask-Login komutunu çalıştırın.)
 
 4. Uygulamayı Başlatın
 Bash
